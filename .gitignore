@@ -1,5 +1,5 @@
 #env vars
-./env.ps1
+env.ps1
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
