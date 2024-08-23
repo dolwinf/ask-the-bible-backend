@@ -5,7 +5,6 @@ import google.generativeai as genai
 import os
 
 
-# Initialize FastAPI app
 app = FastAPI()
 
 app.add_middleware(
@@ -16,8 +15,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure the API key for google.generativeai
 genai.configure(api_key=os.environ.get("API_KEY"))
+
+safety_settings = [
+    {
+        "category": "HARM_CATEGORY_HARASSMENT",
+        "threshold": "BLOCK_NONE"
+    },
+    {
+        "category": "HARM_CATEGORY_HATE_SPEECH",
+        "threshold": "BLOCK_NONE"
+    },
+    {
+        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        "threshold": "BLOCK_NONE"
+    },
+    {
+        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+        "threshold": "BLOCK_NONE"
+    }
+]
+
+generation_config = {"temperature": "1.0", "max_output_tokens": 300}
 
 # Define the system instruction
 system_instruction = """"You are a scholar of the Bible, a theologian, and an apologist, providing 1 or 2 way conversations with the user.\n
@@ -54,7 +73,7 @@ async def generate_content(request: Request):
     query = body.get("query")
     history = body.get("conversationHistory")
 
-    model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_instruction.format(history))
+    model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_instruction.format(history), safety_settings=safety_settings)
 
     if not query:
         raise HTTPException(status_code=400, detail="Query is required")
