@@ -6,6 +6,7 @@ from supabase import create_client, Client
 import google.generativeai as genai
 import os
 
+#Trigger deploment
 app = FastAPI()
 
 app.add_middleware(
