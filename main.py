@@ -1,9 +1,10 @@
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from supabase import create_client, Client
 import google.generativeai as genai
 import os
-
 
 app = FastAPI()
 
@@ -15,6 +16,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+class Feedback(BaseModel):
+      message: str
+   
 genai.configure(api_key=os.environ.get("API_KEY"))
 
 safety_settings = [
@@ -64,11 +73,21 @@ Always refer to the history to make sure you have not missed out on anything as 
 {}
 """
 
-@app.post("/generate")
-async def generate_content(request: Request):
-
+@app.post("/submit-feedback")
+async def submit_feedback(feedback: Feedback):
+    try:
+        supabase.table("feedback").insert({"message": feedback.message}).execute()
+        return JSONResponse(content={"message":"Feedback saved sucessflly"}, status_code=200)
+    
+    except Exception as e:
+        print("Error occurred trying to save data to the DB",e)
+  
+    
+    
     
 
+@app.post("/generate")
+async def generate_content(request: Request):
     body = await request.json()
     query = body.get("query")
     history = body.get("conversationHistory")
@@ -89,5 +108,7 @@ async def generate_content(request: Request):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port="$PORT")
-    # uvicorn.run(app, host="localhost", port=8000)
+    if os.getenv("ENV", "LOCAL") == "PROD":
+        uvicorn.run(app, host="0.0.0.0", port="$PORT")
+    else:
+        uvicorn.run(app, host="localhost", port=8000)
