@@ -9,7 +9,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3001", "https://ask-the-bible-frontend.vercel.app", "https://bibleconvo.com"],  
+    allow_origins=["http://localhost:3001", "https://ask-the-bible-frontend.vercel.app", "https://bibleconvo.com", "https://www.bibleconvo.com"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
