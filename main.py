@@ -108,7 +108,7 @@ async def generate_content(request: Request):
 
 if __name__ == "__main__":
     import uvicorn
-    if os.getenv("ENV", "LOCAL") == "PROD":
+    if os.getenv("APP_ENV", "LOCAL") == "PROD":
         uvicorn.run(app, host="0.0.0.0", port="$PORT")
     else:
         uvicorn.run(app, host="localhost", port=8000)
