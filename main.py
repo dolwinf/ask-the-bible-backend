@@ -84,9 +84,6 @@ async def submit_feedback(feedback: Feedback):
         print("Error occurred trying to save data to the DB",e)
   
     
-    
-    
-
 @app.post("/generate")
 async def generate_content(request: Request):
     body = await request.json()
@@ -99,6 +96,13 @@ async def generate_content(request: Request):
         raise HTTPException(status_code=400, detail="Query is required")
 
     
+    try:
+        data_log = { "query": query, "history": history }
+        supabase.table("queries").insert({"query": data_log}).execute()
+            
+    except Exception:
+        print("Error occurred trying to save data to the DB")
+
     def generate_stream():
         response = model.generate_content(query, stream=True)
         for text in response:
