@@ -90,7 +90,7 @@ async def generate_content(request: Request):
     query = body.get("query")
     history = body.get("conversationHistory")
 
-    model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_instruction.format(history), safety_settings=safety_settings)
+    model = genai.GenerativeModel('gemini-2.0-flash-001', system_instruction=system_instruction.format(history), safety_settings=safety_settings)
 
     if not query:
         raise HTTPException(status_code=400, detail="Query is required")
